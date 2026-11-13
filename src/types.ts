@@ -21,6 +21,7 @@ export interface DataService {
   demo: boolean;
   hasSession(): Promise<boolean>;
   signIn(email: string, password: string, remember: boolean): Promise<void>;
+  signUp(email: string, password: string, name: string): Promise<void>;
   resetPassword(email: string): Promise<void>;
   signOut(): Promise<void>;
   biometric?(): Promise<void>;            // omit if the device has no biometrics

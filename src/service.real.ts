@@ -4,6 +4,7 @@ import { store } from './store';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://zfmwtexiyxjdmwybecfv.supabase.com';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_1SeNDrQMEddymPbqozZ9EQ_kAZ-vvUP';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 let sb: SupabaseClient | null = null;
 function client(): SupabaseClient {
@@ -51,6 +52,30 @@ export const service: DataService = {
   },
 
   async signIn(email: string, password: string, remember: boolean): Promise<void> {
+    const { error } = await client().auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    store.set('ep_email', email);
+  },
+
+  async signUp(email: string, password: string, name: string): Promise<void> {
+    // Create the account via the back-end (server-side, uses service_role key)
+    const backendUrl = BACKEND_URL.trim();
+    const registerEndpoint = backendUrl
+      ? `${backendUrl.replace(/\/$/, '')}/api/auth/register`
+      : '/api/auth/register';
+
+    const response = await fetch(registerEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to create account');
+    }
+
+    // After the back-end creates the Supabase Auth user, sign in immediately
     const { error } = await client().auth.signInWithPassword({ email, password });
     if (error) throw error;
     store.set('ep_email', email);

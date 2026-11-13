@@ -20,7 +20,8 @@ export default function App() {
 }
 
 function Login({ onDone }: { onDone: () => void }) {
-  const [email, setEmail] = useState(''), [pw, setPw] = useState(''), [show, setShow] = useState(false);
+  const [email, setEmail] = useState(''), [pw, setPw] = useState(''), [name, setName] = useState(''), [show, setShow] = useState(false);
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [st, setSt] = useState<'idle' | 'busy' | 'err'>('idle'), [msg, setMsg] = useState(''), [remember, setRemember] = useState(true), [info, setInfo] = useState('');
   const forgot = async () => {
     setInfo('');
@@ -31,14 +32,24 @@ function Login({ onDone }: { onDone: () => void }) {
   return (
     <main className="app login">
       <div className="logo rise"><Ic n="wallet" s={34} /></div>
-      <div className="rise tc" style={{ animationDelay: '.05s' }}><h1>Welcome back</h1><p className="soft">Sign in to see every M-Pesa and Co-op transaction in one place.</p></div>
-      <form className={`glass form rise ${st === 'err' ? 'shake' : ''}`} style={{ animationDelay: '.15s' }} onSubmit={(e: FormEvent) => { e.preventDefault(); run(() => service.signIn(email.trim(), pw, remember)); }} noValidate>
+      <div className="rise tc" style={{ animationDelay: '.05s' }}><h1>{mode === 'signin' ? 'Welcome back' : 'Create account'}</h1><p className="soft">{mode === 'signin' ? 'Sign in to see every M-Pesa and Co-op transaction in one place.' : 'New here? Create your account to start tracking expenses.'}</p></div>
+      <form className={`glass form rise ${st === 'err' ? 'shake' : ''}`} style={{ animationDelay: '.15s' }} onSubmit={(e: FormEvent) => { e.preventDefault(); mode === 'signin' ? run(() => service.signIn(email.trim(), pw, remember)) : run(() => service.signUp(email.trim(), pw, name)); }} noValidate>
         <label className="f"><span>Email</span><div className="fld"><Ic n="mail" s={20} /><input type="email" autoComplete="email" inputMode="email" placeholder="you@example.com" value={email} onChange={e => { setEmail(e.target.value); setSt('idle'); }} /></div></label>
-        <label className="f"><span>Password</span><div className="fld"><Ic n="lock" s={20} /><input type={show ? 'text' : 'password'} autoComplete="current-password" placeholder="Your password" value={pw} onChange={e => { setPw(e.target.value); setSt('idle'); }} />
+        {mode === 'signup' && (
+          <label className="f"><span>Full name</span><div className="fld"><Ic n="user" s={20} /><input type="text" autoComplete="name" placeholder="Your full name" value={name} onChange={e => { setName(e.target.value); setSt('idle'); }} /></div></label>
+        )}
+        <label className="f"><span>Password</span><div className="fld"><Ic n="lock" s={20} /><input type={show ? 'text' : 'password'} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} placeholder={mode === 'signin' ? 'Your password' : 'Choose a password'} value={pw} onChange={e => { setPw(e.target.value); setSt('idle'); }} />
           <button type="button" className="nm eye" aria-label={show ? 'Hide password' : 'Show password'} aria-pressed={show} onClick={() => setShow(!show)}><Ic n="eye" s={20} /></button></div></label>
         {st === 'err' && <p role="alert" className="err">{msg}</p>}{info && <p role="status" className="soft" style={{ margin: 0, fontWeight: 600 }}>{info}</p>}
-        <div className="opts"><label className="chk"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Keep me signed in</label><button type="button" className="link" onClick={forgot}>Forgot password?</button></div>
-        <button className="lq" disabled={st === 'busy'} aria-busy={st === 'busy'}>{st === 'busy' ? <span className="spin" aria-label="Signing in" /> : <><span>Sign in</span><Ic n="arrow" s={20} /></>}</button>
+        {mode === 'signin' && (
+          <div className="opts"><label className="chk"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Keep me signed in</label><button type="button" className="link" onClick={forgot}>Forgot password?</button></div>
+        )}
+        <button className="lq" disabled={st === 'busy'} aria-busy={st === 'busy'}>
+          {st === 'busy' ? <span className="spin" aria-label="Signing in" /> : <><span>{mode === 'signin' ? 'Sign in' : 'Create account'}</span><Ic n="arrow" s={20} /></>}
+        </button>
+        <p className="foot" style={{ marginTop: 12, textAlign: 'center', fontSize: 14, color: '#6b7280' }}>
+          {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'} <button type="button" className="link" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setMsg(''); setInfo(''); }}>{mode === 'signin' ? 'Create one' : 'Sign in'}</button>
+        </p>
       </form>
       {service.biometric && <div className="bio rise" style={{ animationDelay: '.3s' }}><button className="nm round" aria-label="Sign in with fingerprint" onClick={() => run(service.biometric!)}><Ic n="fp" s={30} /></button>Use fingerprint</div>}
       <p className="foot"><Ic n="lock" s={14} /> Private to your account. Synced securely.</p>

@@ -42,6 +42,13 @@ export const service: DataService = {
     if (pw.length < 6) throw new Error('Password must be at least 6 characters.');
     store.set(KEY, '1'); store.set('ep_email', email);
   },
+  async signUp(email, pw, name) {
+    await delay(900);
+    if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error('Enter a valid email address.');
+    if (pw.length < 6) throw new Error('Password must be at least 6 characters.');
+    if (!name.trim()) throw new Error('Please enter your name.');
+    store.set(KEY, '1'); store.set('ep_email', email);
+  },
   async resetPassword(email) { await delay(700); if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error('Enter a valid email address.'); },
   async setManualBalance(id, b) { MAN.set(id, b); },
   async saveRule(_c, _cat) {},
