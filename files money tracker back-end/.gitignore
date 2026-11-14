@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+npm/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Runtime binary outputs
+out/
+out/
+
+# Capacitor/Cordova
+*.apk
+*.aab
+
+# Supabase
+supabase/.env
+
+# Database
+*.db
+*.sqlite
+
+# Editor directories and files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Windows/
+Thumbs.db

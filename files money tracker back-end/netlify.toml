@@ -1,0 +1,30 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+  command = "npm run netlify:build"
+
+[dev]
+  command = "npm run dev"
+  port = 3000
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/api/health"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# Environment variables - set these in Netlify dashboard (Site settings > Environment variables)
+# SUPABASE_URL=your_supabase_project_url
+# SUPABASE_ANON_KEY=your_supabase_anon_key
+# SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+# SUPABASE_JWT_SECRET=your_jwt_secret
+# PORT=3000
+# NODE_ENV=production
+# FRONTEND_URL=https://your-frontend-site.netlify.app
